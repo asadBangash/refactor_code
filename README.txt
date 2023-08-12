@@ -28,7 +28,7 @@ And
 Y.  Refactor it if you feel it needs refactoring. The more love you put into it. The easier for us to asses your thoughts, code principles etc
 
 
-IMPORTANT: Make two commits. First commit with original code. Second with your Refactor so we can easily trace changes. 
+IMPORTANT: Make two commits. First commit with original code. Second with your refactor so we can easily trace changes. 
 
 
 NB: you do not need to set up the code on local and make the web app run. It will not run as its not a complete web app. This is purely to assess you thoughts about code, formatting, logic etc

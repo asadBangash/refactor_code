@@ -1,11 +1,7 @@
 <?php
 
 namespace DTApi\Http\Controllers;
-use App\Http\Requests\BookingStoreRequest;
-use App\Http\Requests\AcceptJobRequest;
-use App\Http\Requests\CancelJobRequest;
-use App\Http\Requests\EndJobRequest;
-use App\Http\Requests\BookingUpdateRequest;
+
 use DTApi\Models\Job;
 use DTApi\Http\Requests;
 use DTApi\Models\Distance;
@@ -37,11 +33,6 @@ class BookingController extends Controller
      * @param Request $request
      * @return mixed
      */
-
-     /** 
-      * original code
-        
-    
     public function index(Request $request)
     {
         if($user_id = $request->get('user_id')) {
@@ -57,53 +48,12 @@ class BookingController extends Controller
         return response($response);
     }
 
-    */
-
-    // Refactor code -----------------------
-   /**  Undefined variables:
-    In the index() method, you have a comment mentioning that $user_id is undefined. Instead of directly 
-    using $request->get('user_id') in the condition, you can directly check 
-    if it's not empty using !empty($request->get('user_id')). This way, you won't have an undefined variable error.
-    */
-    
-   
-    public function index(Request $request)
-    {
-        // Use Laravel's built-in helper function 'optional' to safely access properties
-        $user = optional($request->__authenticatedUser);
-
-        // Check if the user is an admin or superadmin
-        if ($user->user_type == env('ADMIN_ROLE_ID') || $user->user_type == env('SUPERADMIN_ROLE_ID')) {
-            $response = $this->repository->getAll($request);
-        } elseif (!empty($request->get('user_id'))) {
-            $response = $this->repository->getUsersJobs($request->get('user_id'));
-        } else {
-            // Handle other scenarios or return an appropriate response here
-            return response('Unauthorized', 401);
-        }
-
-        return response($response);
-    }
-
-
-
     /**
      * @param $id
      * @return mixed
      */
-     /** 
-      * original code
     public function show($id)
     {
-        $job = $this->repository->with('translatorJobRel.user')->find($id);
-
-        return response($job);
-    }
-     */
-     // Refactor code -------------------------------------
-    public function show($id)
-    {
-        // Use Eloquent's 'with' method for eager loading relationships
         $job = $this->repository->with('translatorJobRel.user')->find($id);
 
         return response($job);
@@ -113,10 +63,6 @@ class BookingController extends Controller
      * @param Request $request
      * @return mixed
      */
-
-      /** 
-      * original code
-      // Use form request validation for better security
     public function store(Request $request)
     {
         $data = $request->all();
@@ -126,27 +72,12 @@ class BookingController extends Controller
         return response($response);
 
     }
-    */
-    // Refactor code -------------------------------------------------
-    public function store(BookingStoreRequest $request)
-    {
-        // Use form request validation for better security
-        $data = $request->validated();
-
-        $response = $this->repository->store($request->__authenticatedUser, $data);
-
-        return response($response);
-    }
 
     /**
      * @param $id
      * @param Request $request
      * @return mixed
      */
-    
-      /** 
-      * original code ------------------------------------
-      // Use form request validation for better security
     public function update($id, Request $request)
     {
         $data = $request->all();
@@ -155,19 +86,7 @@ class BookingController extends Controller
 
         return response($response);
     }
-   */
-    
-    // Refactor code -------------------------------------------------
-    public function update(BookingUpdateRequest $request, $id)
-    {
-        // Use form request validation for better security
-        $data = $request->validated();
 
-        $cuser = $request->__authenticatedUser;
-        $response = $this->repository->updateJob($id, array_except($data, ['_token', 'submit']), $cuser);
-
-        return response($response);
-    }
     /**
      * @param Request $request
      * @return mixed
@@ -201,10 +120,6 @@ class BookingController extends Controller
      * @param Request $request
      * @return mixed
      */
-    /**
-     * original code
-     * // Use form request validation for better security
-     * 
     public function acceptJob(Request $request)
     {
         $data = $request->all();
@@ -214,33 +129,7 @@ class BookingController extends Controller
 
         return response($response);
     }
-    */
 
-    // Refactor code ---------------------------------------------
-    /** I have used dependency injection to pass the BookingRepository instance to the controller
-     constructor, making it more maintainable and testable. 
-    I also utilized the AcceptJobRequest form request class for validation to ensure the incoming data is secure.
-    */
-    public function acceptJob(AcceptJobRequest $request)
-    {
-        // Use form request validation for better security
-        $data = $request->validated();
-
-        $user = $request->__authenticatedUser;
-
-        // Assume the response from the repository method is a JSON response
-        $response = $this->repository->acceptJob($data, $user);
-
-        // Check if the repository response indicates success or failure
-        if ($response->status() === 200) {
-            return response()->json(['message' => 'Job accepted successfully'], 200);
-        } else {
-            return response()->json(['error' => 'Failed to accept the job'], $response->status());
-        }
-    }
-    /**
-     * original code
-     *  // Use form request validation for better security
     public function acceptJobWithId(Request $request)
     {
         $data = $request->get('job_id');
@@ -250,33 +139,11 @@ class BookingController extends Controller
 
         return response($response);
     }
-     */
-    // Refactor code
-     // Use form request validation for better security
-    public function acceptJobWithId(AcceptJobRequest $request)
-    {
-        // Use form request validation for better security
-        $data = $request->validated();
-
-        $user = $request->__authenticatedUser;
-
-        // Assume the response from the repository method is a JSON response
-        $response = $this->repository->acceptJobWithId($data['job_id'], $user);
-
-        // Check if the repository response indicates success or failure
-        if ($response->status() === 200) {
-            return response()->json(['message' => 'Job accepted successfully'], 200);
-        } else {
-            return response()->json(['error' => 'Failed to accept the job'], $response->status());
-        }
-    }
 
     /**
      * @param Request $request
      * @return mixed
      */
-    /**
-    // original code
     public function cancelJob(Request $request)
     {
         $data = $request->all();
@@ -286,34 +153,11 @@ class BookingController extends Controller
 
         return response($response);
     }
-    */
-
-    // Refactor code
-
-    public function cancelJob(CancelJobRequest $request)
-    {
-        // Use form request validation for better security
-        $data = $request->validated();
-
-        $user = $request->__authenticatedUser;
-
-        // Assume the response from the repository method is a JSON response
-        $response = $this->repository->cancelJobAjax($data, $user);
-
-        // Check if the repository response indicates success or failure
-        if ($response->status() === 200) {
-            return response()->json(['message' => 'Job canceled successfully'], 200);
-        } else {
-            return response()->json(['error' => 'Failed to cancel the job'], $response->status());
-        }
-    }
 
     /**
      * @param Request $request
      * @return mixed
      */
-    /**
-     * original Refactor
     public function endJob(Request $request)
     {
         $data = $request->all();
@@ -322,24 +166,6 @@ class BookingController extends Controller
 
         return response($response);
 
-    }
-    */
-     // Use form request validation for better security
-  // Refactor code
-    public function endJob(EndJobRequest $request)
-    {
-        // Use form request validation for better security
-        $data = $request->validated();
-
-        // Assume the response from the repository method is a JSON response
-        $response = $this->repository->endJob($data);
-
-        // Check if the repository response indicates success or failure
-        if ($response->status() === 200) {
-            return response()->json(['message' => 'Job ended successfully'], 200);
-        } else {
-            return response()->json(['error' => 'Failed to end the job'], $response->status());
-        }
     }
 
     public function customerNotCall(Request $request)
@@ -356,9 +182,6 @@ class BookingController extends Controller
      * @param Request $request
      * @return mixed
      */
-     /**
-      * original code
-       $data = $request->all();   is not used
     public function getPotentialJobs(Request $request)
     {
         $data = $request->all();
@@ -368,26 +191,7 @@ class BookingController extends Controller
 
         return response($response);
     }
-    */
 
-    // Refactor code
-    // un-wanted code remove
-    public function getPotentialJobs(Request $request)
-    {
-        $user = $request->__authenticatedUser;
-
-        // Assume the response from the repository method is a JSON response
-        $response = $this->repository->getPotentialJobs($user);
-
-        // Check if the repository response indicates success or failure
-        if ($response->status() === 200) {
-            return response($response);
-        } else {
-            return response()->json(['error' => 'Failed to fetch potential jobs'], $response->status());
-        }
-    }
-     /** 
-      * original code ------------------------------------
     public function distanceFeed(Request $request)
     {
         $data = $request->all();
@@ -446,34 +250,6 @@ class BookingController extends Controller
             $affectedRows1 = Job::where('id', '=', $jobid)->update(array('admin_comments' => $admincomment, 'flagged' => $flagged, 'session_time' => $session, 'manually_handled' => $manually_handled, 'by_admin' => $by_admin));
 
         }
-
-        return response('Record updated!');
-    }
-    */
-    
-    // Refactor code
-
-     /**
-     * Update distance and other job details.
-     *
-     * @param Request $request
-     * @return mixed
-     */
-    public function distanceFeed(Request $request)
-    {
-        $data = $request->all();
-
-        // Use Laravel's built-in helper function 'data_get' for easy access to array data
-        $distance = data_get($data, 'distance', '');
-        $time = data_get($data, 'time', '');
-        $jobid = data_get($data, 'jobid');
-
-        // ... Other variables ...
-
-        // Use Eloquent's update method for a more efficient update query
-        Distance::where('job_id', $jobid)->update(['distance' => $distance, 'time' => $time]);
-
-        // ... Other updates ...
 
         return response('Record updated!');
     }
